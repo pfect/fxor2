@@ -35,6 +35,7 @@
 
 
 #define FXOR_XOR_BUFFSIZE 1024*32
+#define HEX_ENCODED_MSG_MAX_BUFSIZE 250
 
 
 /**
@@ -58,7 +59,8 @@ int is_empty_fp(FILE *fp, const char *fp_name);
  */
 
 int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
-	const char *in_n, const char *key_n, const char *out_n);
+	const char *in_n, const char *key_n, const char *out_n, 
+	size_t *consumed_key_l,long int keystart_i);
 
 
 #endif /* fxor_stream_xor.h */

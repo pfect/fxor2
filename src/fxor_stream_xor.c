@@ -28,6 +28,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 #include <err.h>
 
 #include "fxor_exits.h"
@@ -44,11 +45,15 @@
  */
 
 int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
-	const char *in_n, const char *key_n, const char *out_n)
+	const char *in_n, const char *key_n, const char *out_n, 
+	size_t *consumed_key_l,long int keystart_i)
 {
 	static unsigned char data[FXOR_XOR_BUFFSIZE], key[FXOR_XOR_BUFFSIZE];
-	size_t in_l, key_l = 0, key_i = 0, data_i;
+	size_t in_l, key_l = 0, key_i = 0, data_i, key_byte_counter=0;
 	int is_empty_key_fp_r;
+	char hexbuf[HEX_ENCODED_MSG_MAX_BUFSIZE];
+	memset(hexbuf,0,HEX_ENCODED_MSG_MAX_BUFSIZE);
+	
 	
 	if (!in_fp || !key_fp || !out_fp) {
 		if (!in_fp) {
@@ -74,6 +79,11 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 		return FXOR_EX_IOERR;
 	}
 	
+	/* Skip to given index in key file */
+	if (fseek(key_fp, keystart_i, SEEK_SET)) {
+		return FXOR_EX_IOERR;
+	}
+	
 	
 	while (1)
 	{
@@ -91,9 +101,9 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 				if (key_i >= key_l) {
 					/* Get Data From key_fp */
 					
-					key_i = 0;
-					
+					key_i = 0; 
 					key_l = fread(key, sizeof(unsigned char), sizeof(key), key_fp);
+					
 					if (ferror(key_fp)) {
 						warn("%s: %s", __func__, key_n);
 						return FXOR_EX_IOERR;
@@ -114,14 +124,30 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 				key_i++;
 			}
 			
+			// printf("(%li)Data: %li Key: %li \n",count,data_i, key_i);
+			key_byte_counter = key_byte_counter + key_i;
+			// count++;
+			
+			/* stdout out_fp => hex encoding [::] HEX_ENCODED_MSG_MAX_BUFSIZE */
+			if ( data_i < HEX_ENCODED_MSG_MAX_BUFSIZE ) {
+				for(size_t i = 0; i < data_i; i++)
+					sprintf(hexbuf+2*i, "%.2x", data[i]);
+				
+				printf("%s**\n",hexbuf);
+				*consumed_key_l = key_byte_counter; 
+				return FXOR_EX_OK;
+			}
+			
 			fwrite(data, sizeof(unsigned char), in_l, out_fp);
 			if (ferror(out_fp)) {
 				warn("%s: %s", __func__, out_n);
+				/* TODO: Handle error & key erase */
 				return FXOR_EX_IOERR;
 			}
 		}
 		else if (!in_l && feof(in_fp)) {
 			/* End Of in_fp */
+			*consumed_key_l = key_byte_counter;
 			return FXOR_EX_OK;
 		}
 	}

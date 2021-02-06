@@ -56,6 +56,10 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 {
 	FILE *in_fp, *key_fp, *out_fp;
 	int r;
+	long int key_start_index=593738; // THIS FROM STORED VALUE and this is used to seek key file pointer
+	size_t usedkey_len=0;
+	size_t *usedkey;
+	usedkey=&usedkey_len;
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
 		if (access(in_n, R_OK)) {
@@ -93,7 +97,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 			
 			out_fp = write_from_beginning ? fopen(out_n, "rb+") : fopen(out_n, "wb");
 			if (out_fp) {
-				r = fxor_stream_xor(in_fp, key_fp, out_fp, in_n, key_n, out_n);
+				r = fxor_stream_xor(in_fp, key_fp, out_fp, in_n, key_n, out_n,usedkey,key_start_index);
 			}
 			else {
 				warn("%s", out_n);
@@ -104,9 +108,11 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 		}
 		else {
 			/* output to stdout */
-			r = fxor_stream_xor(in_fp, key_fp, stdout, in_n, key_n, "(stdout)");
+			r = fxor_stream_xor(in_fp, key_fp, stdout, in_n, key_n, "(stdout)",usedkey,key_start_index);
 		}
 	}
+	
+	printf("DEBUG: You should nuke %ld bytes of key material starting at: %ld \n",usedkey_len,key_start_index),
 	
 	safe_fclose(in_fp);
 	safe_fclose(key_fp);

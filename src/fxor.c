@@ -52,17 +52,19 @@ void safe_fclose(FILE *fp);
  *   out_fpile exist AND NOT writable
  */
 
-int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning)
+int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning, long int key_i)
 {
 	FILE *in_fp, *key_fp, *out_fp;
 	int r;
-	long int key_start_index=20; // THIS FROM STORED VALUE and this is used to seek key file pointer
+	long int key_start_index=0; // THIS FROM STORED VALUE and this is used to seek key file pointer
 	size_t usedkey_len=0;
 	size_t *usedkey;
 	char overwrite = 0x00;
 	size_t overwrite_loop;
-	
 	usedkey=&usedkey_len;
+	
+	printf("Key index: %ld \n",key_i);
+	key_start_index = key_i;
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
 		if (access(in_n, R_OK)) {
@@ -115,25 +117,21 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	safe_fclose(in_fp);
 	safe_fclose(key_fp);
 	
-	/* OTP processed and files closed, now we need to delete key */
-	printf("DEBUG: You should nuke %ld bytes of key material starting at: %ld \n",usedkey_len,key_start_index);
-
-	/* Nuke Dukem */
+	/* Key erase from 'key_start_index' to 'usedkey_len' */
 	
 	if ( !access(key_n, R_OK) ) {
-		printf("duke start from: %ld len: %ld \n",key_start_index,usedkey_len);
+		printf("Key erased (start: %ld len: %ld) \n",key_start_index,usedkey_len);
 		key_fp = fopen(key_n, "rb+");
 		if (fseek(key_fp, key_start_index, SEEK_SET)) {
 			return FXOR_EX_IOERR;
 		}	
 		for ( overwrite_loop = 0; overwrite_loop < usedkey_len; overwrite_loop++)
 		{
-			fwrite(&overwrite, sizeof(char), 1, key_fp);
-			
+			fwrite(&overwrite, sizeof(char), 1, key_fp);	
 		}
-
 		safe_fclose(key_fp);
 	}	
+	
 	return r;
 }
 

@@ -32,6 +32,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include <stdlib.h>
 
 #include "fxor.h"	/* fxor.h include stdbool.h */
 #include "fxor_exits.h"
@@ -39,27 +40,76 @@
 
 int main(int argc, char *argv[])
 {
-	const char *in_n  = argc >= 3 ? argv[1] : NULL;
-	const char *key_n = argc >= 3 ? argv[2] : NULL;
-	const char *out_n = argc >= 4 ? argv[3] : NULL;
+	long int key_i = atoi(argv[1]);
+	
+	const char *in_n  = argc >= 4 ? argv[2] : NULL;
+	const char *key_n = argc >= 4 ? argv[3] : NULL;
+	const char *out_n = argc >= 5 ? argv[4] : NULL;
+	
+	
 	
 	if (argc == 2) {
 		if (!strcmp("--help", argv[1])) {
 			fprintf(stdout, FXOR_USAGE);
 			return FXOR_EX_OK;
 		}
-		else if (!strcmp("--version", argv[1])) { /* Print version and copyright */
+		else if (!strcmp("--version", argv[1])) { // Print version and copyright 
+			fprintf(stdout, "fxor version %s\n%s", FXOR_VERSION, FXOR_COPYING);
+			return FXOR_EX_OK;
+		}
+	}
+	else if (argc == 4) {
+		// Output to stdout 
+		return fxor(in_n, key_n, NULL, false,key_i);
+	}
+	else if (argc == 5) {
+		if (access(out_n, F_OK)) {
+			// If out_n NOT exist 
+			return fxor(in_n, key_n, out_n, false,key_i);
+		}
+		else {
+			warnx("WARNING: '%s' is exist", out_n);
+			warnx("Abort.");
+			return FXOR_EX_ABORT;
+		}
+	}
+	else if (argc == 6) {
+		if (!strcmp("-r", argv[4]) || (!strcmp("-s", argv[4]) && access(out_n, F_OK))) {
+			// Overwrite OUT_FILE option OR (Start output from OUT_FILE beginning option AND out_n NOT exist) 
+			return fxor(in_n, key_n, out_n, false,key_i);
+		}
+		else if (!strcmp("-s", argv[4])) {
+			// Start output from OUT_FILE beginning
+			return fxor(in_n, key_n, out_n, true,key_i);
+		}
+	}
+	
+	fprintf(stdout, INVALID_CMD_USAGE_STR);
+	return FXOR_EX_USAGE;
+	
+	/* ORG
+	const char *in_n  = argc >= 3 ? argv[1] : NULL;
+	const char *key_n = argc >= 3 ? argv[2] : NULL;
+	const char *out_n = argc >= 4 ? argv[3] : NULL;
+	// const char *key_i = argc >= 5 ? argv[4] : NULL; // **
+	
+	if (argc == 2) {
+		if (!strcmp("--help", argv[1])) {
+			fprintf(stdout, FXOR_USAGE);
+			return FXOR_EX_OK;
+		}
+		else if (!strcmp("--version", argv[1])) { // Print version and copyright 
 			fprintf(stdout, "fxor version %s\n%s", FXOR_VERSION, FXOR_COPYING);
 			return FXOR_EX_OK;
 		}
 	}
 	else if (argc == 3) {
-		/* Output to stdout */
+		// Output to stdout 
 		return fxor(in_n, key_n, NULL, false);
 	}
 	else if (argc == 4) {
 		if (access(out_n, F_OK)) {
-			/* If out_n NOT exist */
+			// If out_n NOT exist 
 			return fxor(in_n, key_n, out_n, false);
 		}
 		else {
@@ -70,15 +120,16 @@ int main(int argc, char *argv[])
 	}
 	else if (argc == 5) {
 		if (!strcmp("-r", argv[4]) || (!strcmp("-s", argv[4]) && access(out_n, F_OK))) {
-			/* Overwrite OUT_FILE option OR (Start output from OUT_FILE beginning option AND out_n NOT exist) */
+			// Overwrite OUT_FILE option OR (Start output from OUT_FILE beginning option AND out_n NOT exist) 
 			return fxor(in_n, key_n, out_n, false);
 		}
 		else if (!strcmp("-s", argv[4])) {
-			/* Start output from OUT_FILE beginning */
+			// Start output from OUT_FILE beginning
 			return fxor(in_n, key_n, out_n, true);
 		}
 	}
 	
 	fprintf(stdout, INVALID_CMD_USAGE_STR);
 	return FXOR_EX_USAGE;
+	*/
 }

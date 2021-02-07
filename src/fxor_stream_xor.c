@@ -79,11 +79,10 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 		return FXOR_EX_IOERR;
 	}
 	
-	/* Skip to given index in key file */
+	/* Seek to given index in key file */
 	if (fseek(key_fp, keystart_i, SEEK_SET)) {
 		return FXOR_EX_IOERR;
 	}
-	
 	
 	while (1)
 	{
@@ -123,10 +122,7 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 				data_i++;
 				key_i++;
 			}
-			
-			// printf("(%li)Data: %li Key: %li \n",count,data_i, key_i);
 			key_byte_counter = key_byte_counter + key_i;
-			// count++;
 			
 			/* stdout out_fp => hex encoding [::] HEX_ENCODED_MSG_MAX_BUFSIZE */
 			if ( data_i < HEX_ENCODED_MSG_MAX_BUFSIZE ) {

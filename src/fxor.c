@@ -56,9 +56,12 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 {
 	FILE *in_fp, *key_fp, *out_fp;
 	int r;
-	long int key_start_index=593738; // THIS FROM STORED VALUE and this is used to seek key file pointer
+	long int key_start_index=20; // THIS FROM STORED VALUE and this is used to seek key file pointer
 	size_t usedkey_len=0;
 	size_t *usedkey;
+	char overwrite = 0x00;
+	size_t overwrite_loop;
+	
 	usedkey=&usedkey_len;
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
@@ -73,8 +76,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 		if (out_n && (!access(out_n, F_OK) && access(out_n, W_OK))) {
 			/* out_n exist AND NOT writable */
 			warn("%s", out_n);
-		}
-		
+		}		
 		return FXOR_EX_NOINPUT;
 	}
 	
@@ -93,8 +95,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	}
 	else {
 		if (out_n) {
-			/* output to out_fp */
-			
+			/* output to out_fp */			
 			out_fp = write_from_beginning ? fopen(out_n, "rb+") : fopen(out_n, "wb");
 			if (out_fp) {
 				r = fxor_stream_xor(in_fp, key_fp, out_fp, in_n, key_n, out_n,usedkey,key_start_index);
@@ -111,12 +112,28 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 			r = fxor_stream_xor(in_fp, key_fp, stdout, in_n, key_n, "(stdout)",usedkey,key_start_index);
 		}
 	}
-	
-	printf("DEBUG: You should nuke %ld bytes of key material starting at: %ld \n",usedkey_len,key_start_index),
-	
 	safe_fclose(in_fp);
 	safe_fclose(key_fp);
 	
+	/* OTP processed and files closed, now we need to delete key */
+	printf("DEBUG: You should nuke %ld bytes of key material starting at: %ld \n",usedkey_len,key_start_index);
+
+	/* Nuke Dukem */
+	
+	if ( !access(key_n, R_OK) ) {
+		printf("duke start from: %ld len: %ld \n",key_start_index,usedkey_len);
+		key_fp = fopen(key_n, "rb+");
+		if (fseek(key_fp, key_start_index, SEEK_SET)) {
+			return FXOR_EX_IOERR;
+		}	
+		for ( overwrite_loop = 0; overwrite_loop < usedkey_len; overwrite_loop++)
+		{
+			fwrite(&overwrite, sizeof(char), 1, key_fp);
+			
+		}
+
+		safe_fclose(key_fp);
+	}	
 	return r;
 }
 

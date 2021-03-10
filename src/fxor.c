@@ -55,7 +55,7 @@ void set_key_index(char *filename, long int index);
  *   out_fpile exist AND NOT writable
  */
 
-int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning, long int key_i)
+int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning)
 {
 	FILE *in_fp, *key_fp, *out_fp;
 	int r;
@@ -65,12 +65,12 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	char overwrite = 0x00;
 	size_t overwrite_loop;
 	char keyindex_filename[KEY_INDEX_FILENAME_LEN];
-	memset(keyindex_filename,0,KEY_INDEX_FILENAME_LEN); 
 	usedkey=&usedkey_len;
 	
 	
 	
 	/* debug of stored index */
+	memset(keyindex_filename,0,KEY_INDEX_FILENAME_LEN); 
 	sprintf(keyindex_filename,"%s.%s",key_n,"index");
 	printf("Checking %s presense \n",keyindex_filename);
 	
@@ -79,7 +79,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 		printf("Got key index from file: %ld \n", key_start_index);
 	} else {
 		/* Get key position from command line */
-		key_start_index = key_i;
+		key_start_index = 0;
 	}
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
@@ -137,7 +137,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	 * write used key bytes (key_start_index + usedkey_len) to index file */
 	
 	if ( !access(key_n, R_OK) ) {
-		
+		memset(keyindex_filename,0,KEY_INDEX_FILENAME_LEN); 
 		sprintf(keyindex_filename,"%s.%s",key_n,"index");
 		set_key_index(keyindex_filename, key_start_index + (long int)usedkey_len ); 
 		printf("Key index (start: %ld len: %ld) stored: %s\n",key_start_index,usedkey_len,keyindex_filename);

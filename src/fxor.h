@@ -98,7 +98,7 @@ Try 'fxor --help' to show usage information.\n"
  *   out_file exist And not writable
  */
 
-int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning, long int key_i);
+int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning);
 
 
 #endif /* fxor.h */

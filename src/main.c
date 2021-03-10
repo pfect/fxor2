@@ -40,12 +40,12 @@
 
 int main(int argc, char *argv[])
 {
-	long int key_i = atoi(argv[1]);
-	const char *in_n  = argc >= 4 ? argv[2] : NULL;
-	const char *key_n = argc >= 4 ? argv[3] : NULL;
-	const char *out_n = argc >= 5 ? argv[4] : NULL;
+	// long int key_i = atoi(argv[1]);
+	const char *in_n  = argc >= 4 ? argv[1] : NULL;
+	const char *key_n = argc >= 4 ? argv[2] : NULL;
+	const char *out_n = argc >= 5 ? argv[3] : NULL;
 	
-	if (argc == 2) {
+	if (argc == 1) {
 		if (!strcmp("--help", argv[1])) {
 			fprintf(stdout, FXOR_USAGE);
 			return FXOR_EX_OK;
@@ -55,14 +55,14 @@ int main(int argc, char *argv[])
 			return FXOR_EX_OK;
 		}
 	}
-	else if (argc == 4) {
+	else if (argc == 3) {
 		// Output to stdout 
-		return fxor(in_n, key_n, NULL, false,key_i);
+		return fxor(in_n, key_n, NULL, false);
 	}
-	else if (argc == 5) {
+	else if (argc == 4) {
 		if (access(out_n, F_OK)) {
 			// If out_n NOT exist 
-			return fxor(in_n, key_n, out_n, false,key_i);
+			return fxor(in_n, key_n, out_n, false);
 		}
 		else {
 			warnx("WARNING: '%s' is exist", out_n);
@@ -70,18 +70,18 @@ int main(int argc, char *argv[])
 			return FXOR_EX_ABORT;
 		}
 	}
-	else if (argc == 6) {
+	else if (argc == 5) {
 		if (!strcmp("-r", argv[4]) || (!strcmp("-s", argv[4]) && access(out_n, F_OK))) {
 			// Overwrite OUT_FILE option OR (Start output from OUT_FILE beginning option AND out_n NOT exist) 
-			return fxor(in_n, key_n, out_n, false,key_i);
+			return fxor(in_n, key_n, out_n, false);
 		}
 		else if (!strcmp("-s", argv[4])) {
 			// Start output from OUT_FILE beginning
-			return fxor(in_n, key_n, out_n, true,key_i);
+			return fxor(in_n, key_n, out_n, true);
 		}
 		else if (!strcmp("-d", argv[4])) {
 			// decrypt in_n as hex string
-			return fxor(in_n, key_n, out_n, true,key_i);
+			return fxor(in_n, key_n, out_n, true);
 		}
 	}
 	

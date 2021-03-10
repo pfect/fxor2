@@ -41,9 +41,9 @@
 int main(int argc, char *argv[])
 {
 	// long int key_i = atoi(argv[1]);
-	const char *in_n  = argc >= 4 ? argv[1] : NULL;
-	const char *key_n = argc >= 4 ? argv[2] : NULL;
-	const char *out_n = argc >= 5 ? argv[3] : NULL;
+	const char *in_n  = argc >= 3 ? argv[1] : NULL;
+	const char *key_n = argc >= 3 ? argv[2] : NULL;
+	const char *out_n = argc >= 4 ? argv[3] : NULL;
 	
 	if (argc == 1) {
 		if (!strcmp("--help", argv[1])) {

@@ -31,10 +31,12 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <err.h>
+#include <string.h>
 
 #include "fxor_stream_xor.h"
 #include "fxor_exits.h"
 
+#define KEY_INDEX_FILENAME_LEN	100
 
 void safe_fclose(FILE *fp);
 long int get_key_index(char *filename);
@@ -62,10 +64,23 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	size_t *usedkey;
 	char overwrite = 0x00;
 	size_t overwrite_loop;
+	char keyindex_filename[KEY_INDEX_FILENAME_LEN];
+	memset(keyindex_filename,0,KEY_INDEX_FILENAME_LEN); 
 	usedkey=&usedkey_len;
 	
-	/* Get key position */
-	key_start_index = key_i;
+	
+	
+	/* debug of stored index */
+	sprintf(keyindex_filename,"%s.%s",key_n,"index");
+	printf("Checking %s presense \n",keyindex_filename);
+	
+	if (! access(keyindex_filename, R_OK) ) {
+		key_start_index = get_key_index(keyindex_filename);
+		printf("Got key index from file: %ld \n", key_start_index);
+	} else {
+		/* Get key position from command line */
+		key_start_index = key_i;
+	}
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
 		if (access(in_n, R_OK)) {
@@ -118,11 +133,15 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	safe_fclose(in_fp);
 	safe_fclose(key_fp);
 	
-	/* Key erase from 'key_start_index' to 'usedkey_len' */
+	/* Key erase from 'key_start_index' to 'usedkey_len'
+	 * write used key bytes (key_start_index + usedkey_len) to index file */
 	
 	if ( !access(key_n, R_OK) ) {
-		printf("Key erased (start: %ld len: %ld) \n",key_start_index,usedkey_len);
-		set_key_index("keyindex", key_start_index + (long int)usedkey_len ); // JUST A TEST (should be index+len)
+		
+		sprintf(keyindex_filename,"%s.%s",key_n,"index");
+		set_key_index(keyindex_filename, key_start_index + (long int)usedkey_len ); 
+		printf("Key index (start: %ld len: %ld) stored: %s\n",key_start_index,usedkey_len,keyindex_filename);
+		
 		key_fp = fopen(key_n, "rb+");
 		if (fseek(key_fp, key_start_index, SEEK_SET)) {
 			return FXOR_EX_IOERR;

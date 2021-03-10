@@ -30,10 +30,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <err.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
 
 #include "fxor_exits.h"
 #include "fxor_stream_xor.h"
-
 
 /**
  * fxor_stream_xor()
@@ -124,15 +126,17 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 			}
 			key_byte_counter = key_byte_counter + key_i;
 			
-			/* stdout out_fp => hex encoding [::] HEX_ENCODED_MSG_MAX_BUFSIZE */
+			/* decrypt_hex */
+			/* stdout out_fp => hex encoding [::] HEX_ENCODED_MSG_MAX_BUFSIZE 
+			 * we should always use file
 			if ( data_i < HEX_ENCODED_MSG_MAX_BUFSIZE ) {
 				for(size_t i = 0; i < data_i; i++)
 					sprintf(hexbuf+2*i, "%.2x", data[i]);
 				
-				printf("%s**\n",hexbuf);
+				printf("%s \n",hexbuf);
 				*consumed_key_l = key_byte_counter; 
 				return FXOR_EX_OK;
-			}
+			} */
 			
 			fwrite(data, sizeof(unsigned char), in_l, out_fp);
 			if (ferror(out_fp)) {

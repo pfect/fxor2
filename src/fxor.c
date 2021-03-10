@@ -37,7 +37,8 @@
 
 
 void safe_fclose(FILE *fp);
-
+long int get_key_index(char *filename);
+void set_key_index(char *filename, long int index);
 
 /**
  * fxor()
@@ -63,7 +64,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	size_t overwrite_loop;
 	usedkey=&usedkey_len;
 	
-	printf("Key index: %ld \n",key_i);
+	/* Get key position */
 	key_start_index = key_i;
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
@@ -121,6 +122,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	
 	if ( !access(key_n, R_OK) ) {
 		printf("Key erased (start: %ld len: %ld) \n",key_start_index,usedkey_len);
+		set_key_index("keyindex", key_start_index + (long int)usedkey_len ); // JUST A TEST (should be index+len)
 		key_fp = fopen(key_n, "rb+");
 		if (fseek(key_fp, key_start_index, SEEK_SET)) {
 			return FXOR_EX_IOERR;
@@ -145,3 +147,21 @@ void safe_fclose(FILE *fp)
 		fp = NULL;
 	}
 }
+
+long int get_key_index(char *filename) {
+	long int index=0;
+	FILE *keyindex_file;
+	keyindex_file = fopen(filename, "rb");
+	fread(&index, sizeof(long int),1,keyindex_file);
+	safe_fclose(keyindex_file);
+	return index;
+}
+
+void set_key_index(char *filename, long int index) {
+	FILE *keyindex_file;
+	keyindex_file = fopen(filename, "wb");
+	fwrite(&index, sizeof(long int), 1, keyindex_file);
+	safe_fclose(keyindex_file);
+}
+
+

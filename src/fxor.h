@@ -48,8 +48,8 @@ See the file 'COPYING' for details.\n"
 fxor - a tool to encrypt/decrypt a file using XOR operation to do one-time pad\n\
 \n\
 Usage:\n\
-  fxor IN_FILE KEY_FILE\n\
-  fxor IN_FILE KEY_FILE OUT_FILE [OPTION]\n\
+  fxor KEY_INDEX IN_FILE KEY_FILE\n\
+  fxor KEY_INDEX IN_FILE KEY_FILE OUT_FILE [OPTION]\n\
 \n\
   Display this usage information:\n\
     fxor --help\n\
@@ -65,6 +65,7 @@ Description:\n\
 \n\
   fxor can be used as OTP (One-Time Pad) tool.\n\
 \n\
+  KEY_INDEX Offset for key usage and deletion (decimal number)\n\
   IN_FILE:  Input file name, Witch will processed.\n\
   KEY_FILE: Key file name, Usually random bytes file.\n\
   OUT_FILE: Output file name.\n\

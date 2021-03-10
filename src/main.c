@@ -41,12 +41,9 @@
 int main(int argc, char *argv[])
 {
 	long int key_i = atoi(argv[1]);
-	
 	const char *in_n  = argc >= 4 ? argv[2] : NULL;
 	const char *key_n = argc >= 4 ? argv[3] : NULL;
 	const char *out_n = argc >= 5 ? argv[4] : NULL;
-	
-	
 	
 	if (argc == 2) {
 		if (!strcmp("--help", argv[1])) {
@@ -80,6 +77,10 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp("-s", argv[4])) {
 			// Start output from OUT_FILE beginning
+			return fxor(in_n, key_n, out_n, true,key_i);
+		}
+		else if (!strcmp("-d", argv[4])) {
+			// decrypt in_n as hex string
 			return fxor(in_n, key_n, out_n, true,key_i);
 		}
 	}

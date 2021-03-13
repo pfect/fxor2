@@ -47,9 +47,9 @@ See the file 'COPYING' for details.\n"
 #define FXOR_USAGE "\
 fxor - a tool to encrypt/decrypt a file using XOR operation to do one-time pad\n\
 \n\
-Usage:\n\
-  fxor KEY_INDEX IN_FILE KEY_FILE\n\
-  fxor KEY_INDEX IN_FILE KEY_FILE OUT_FILE [OPTION]\n\
+Usage:\n\n\
+  fxor IN_FILE KEY_FILE\n\
+  fxor IN_FILE KEY_FILE OUT_FILE [OPTION]\n\
 \n\
   Display this usage information:\n\
     fxor --help\n\
@@ -57,7 +57,7 @@ Usage:\n\
   Display version and copyright information:\n\
     fxor --version\n\
 \n\
-Description:\n\
+Description:\n\n\
   fxor is a tool that you can use to encrypt/decrypt IN_FILE content\n\
   with KEY_FILE content using XOR operation, and output to:\n\
     * The file OUT_FILE.\n\
@@ -65,7 +65,6 @@ Description:\n\
 \n\
   fxor can be used as OTP (One-Time Pad) tool.\n\
 \n\
-  KEY_INDEX Offset for key usage and deletion (decimal number)\n\
   IN_FILE:  Input file name, Witch will processed.\n\
   KEY_FILE: Key file name, Usually random bytes file.\n\
   OUT_FILE: Output file name.\n\
@@ -98,7 +97,7 @@ Try 'fxor --help' to show usage information.\n"
  *   out_file exist And not writable
  */
 
-int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning);
+int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning,long int key_i);
 
 
 #endif /* fxor.h */

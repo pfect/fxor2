@@ -67,20 +67,28 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	char keyindex_filename[KEY_INDEX_FILENAME_LEN];
 	usedkey=&usedkey_len;
 	
-	/* [keyfile].index  
-	memset(keyindex_filename,0,KEY_INDEX_FILENAME_LEN); 
-	sprintf(keyindex_filename,"%s.%s",key_n,"index");
-	if (! access(keyindex_filename, R_OK) ) {
-		key_start_index = get_key_index(keyindex_filename);
-		printf("Got key index from file: %ld \n", key_start_index);
+	/* if command line supplied index is zero, use [keyfile].index  
+	 * 
+	 * - When encrypting, command line supplied index should always be 0- 
+	 * - When decrypting, index should be supplied always on command line ( > 0 ) 
+	 * 
+	 * Encryption end defines always index and it starts from 0. After initial
+	 * index (0) all next index starts should be read from .index file. 
+	 * 
+	 * Decryption end takes always supplied index from payload
+	 * 
+	 */
+	
+	if ( key_i == 0 ) {	
+		memset(keyindex_filename,0,KEY_INDEX_FILENAME_LEN); 
+		sprintf(keyindex_filename,"%s.%s",key_n,"index");
+		if (! access(keyindex_filename, R_OK) ) {
+			key_start_index = get_key_index(keyindex_filename);
+			printf("Got key index from file: %ld \n", key_start_index);
+		} 
 	} else {
-		key_start_index = key_i;;
+		key_start_index = key_i;
 	}
-	*/
-	
-	/* Use always command line key index */
-	key_start_index = key_i;;
-	
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {
 		if (access(in_n, R_OK)) {

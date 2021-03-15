@@ -93,7 +93,7 @@ int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from
 	/* Check key validity: we should fail if keyfile is already zeroed out */
 	if ( check_key_block_validity( in_n, key_n,key_start_index) ) {
 		printf("Key block validity check fails. Exiting.\n");
-		return FXOR_EX_ABORT;
+		return FXOR_EX_ZEROKEY;
 	}
 	
 	if (access(in_n, R_OK) || access(key_n, R_OK) || (out_n && !access(out_n, F_OK) && access(out_n, W_OK))) {

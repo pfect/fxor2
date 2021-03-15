@@ -37,6 +37,6 @@
 #define FXOR_EX_IOERR    74  /* error while doing I/O (e.g., no free space left) */
 #define FXOR_EX_ABORT    80  /* fxor abort the operation */
 #define FXOR_EX_NOKEY    81  /* key file is empty */
-
+#define FXOR_EX_ZEROKEY  82  /* key file has zeroed out bytes */
 
 #endif /* fxor_exits.h */

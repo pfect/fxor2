@@ -99,5 +99,6 @@ Try 'fxor --help' to show usage information.\n"
 
 int fxor(const char *in_n, const char *key_n, const char *out_n, bool write_from_beginning,long int key_i);
 
+void safe_fclose(FILE *fp);
 
 #endif /* fxor.h */

@@ -48,7 +48,6 @@
 
 int is_empty_fp(FILE *fp, const char *fp_name);
 
-
 /**
  * fxor_stream_xor()
  * 
@@ -62,5 +61,16 @@ int fxor_stream_xor(FILE *in_fp, FILE *key_fp, FILE *out_fp,
 	const char *in_n, const char *key_n, const char *out_n, 
 	size_t *consumed_key_l,long int keystart_i);
 
+
+/**
+ * check_key_material()
+ * 
+ * Check key file content for validity (eg. it's not zero's)
+ * 
+ * Return 0 when ok; 1 when key block contains zero's
+ * 
+ */
+
+int check_key_block_validity(const char *in_n, const char *key_n,long int keystart_i);
 
 #endif /* fxor_stream_xor.h */

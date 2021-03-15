@@ -33,7 +33,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <unistd.h>
 
+#include "fxor.h"
 #include "fxor_exits.h"
 #include "fxor_stream_xor.h"
 
@@ -190,4 +192,77 @@ int is_empty_fp(FILE *fp, const char *fp_name)
 	err:
 	warn("%s", fp_name);
 	return -1;
+}
+
+long int fsize(FILE *fp){
+    
+    long int sz, prev;
+    
+    prev=ftell(fp);
+    fseek(fp, 0L, SEEK_END);
+    sz=ftell(fp);
+    fseek(fp,prev,SEEK_SET); 
+    return sz;
+}
+
+/**
+ * check_key_material()
+ * 
+ * Check key file content for validity (eg. it's not zero's)
+ * 
+ * Return 0 when ok; 1 when key block contains zero's
+ * 
+ */
+ 
+int check_key_block_validity(const char *in_n, const char *key_n,long int keystart_i) 
+{
+	/* 1. Read source file lenght (in_n)
+	 * 2. Check key block starting from keystart_i for '00' '00'
+	 * 3. Return value
+	 * */
+	FILE *in_fp, *key_fp;
+	long int file_len=0;
+	long int byte_check_loop=0;
+	int keybyte_0=0;
+	int keybyte_1=0;
+	int result=0;
+	
+	/* 1. Source file len */
+	in_fp  = fopen(in_n, "rb");
+	file_len = fsize(in_fp);
+	// printf("Source file len: %ld \n",file_len);
+	safe_fclose(in_fp);
+	
+	/* 2. Open key file */
+	key_fp = fopen(key_n, "rb");
+	if (!key_fp) {
+		warn("%s", key_n);
+		return  FXOR_EX_IOERR;
+	}
+	else {
+		if ( !access(key_n, R_OK) ) {
+			key_fp = fopen(key_n, "rb+");
+			
+			if (fseek(key_fp, keystart_i, SEEK_SET)) {
+				return FXOR_EX_IOERR; // TODO: CHECK RETURN VALUES!
+			}	
+			// printf("Seek to: %ld \n",keystart_i);
+			for ( byte_check_loop = 0; byte_check_loop < file_len; byte_check_loop++)
+			{
+				/* read key file & compare for sequential zeros */
+				fread(&keybyte_0, 1,1,key_fp);
+				if (keybyte_1 == 0 && keybyte_0 == 0) {
+					/* We've read two sequential zero's => invalid key (is this safe assumption?) */
+					// printf("XXX Index: %ld Keybyte: %x \n",byte_check_loop,keybyte_0);
+					result = 1;
+				} else {
+					// printf("Index: %ld Keybyte: %x \n",byte_check_loop,keybyte_0);
+				}
+				keybyte_1=keybyte_0;
+			}
+			safe_fclose(key_fp);
+		}	
+	}
+	
+	return result;
 }

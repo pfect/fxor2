@@ -217,21 +217,22 @@ long int fsize(FILE *fp){
 int check_key_block_validity(const char *in_n, const char *key_n,long int keystart_i) 
 {
 	/* 1. Read source file lenght (in_n)
-	 * 2. Check key block starting from keystart_i for '00' '00'
+	 * 2. Check key block starting from keystart_i for '00' '00' <= NOT SUITABLE
 	 * 3. Return value
 	 * */
 	FILE *in_fp, *key_fp;
 	long int file_len=0;
 	long int byte_check_loop=0;
-	int keybyte_0=0;
-	int keybyte_1=0;
+	int keybyte[3];
 	int result=0;
 	
 	/* 1. Source file len */
 	in_fp  = fopen(in_n, "rb");
 	file_len = fsize(in_fp);
-	// printf("Source file len: %ld \n",file_len);
+	printf("Source file len: %ld \n",file_len);
 	safe_fclose(in_fp);
+	
+	printf("Key file : %s \n",key_n);
 	
 	/* 2. Open key file */
 	key_fp = fopen(key_n, "rb");
@@ -249,16 +250,17 @@ int check_key_block_validity(const char *in_n, const char *key_n,long int keysta
 			// printf("Seek to: %ld \n",keystart_i);
 			for ( byte_check_loop = 0; byte_check_loop < file_len; byte_check_loop++)
 			{
-				/* read key file & compare for sequential zeros */
-				fread(&keybyte_0, 1,1,key_fp);
-				if (keybyte_1 == 0 && keybyte_0 == 0) {
-					/* We've read two sequential zero's => invalid key (is this safe assumption?) */
-					// printf("XXX Index: %ld Keybyte: %x \n",byte_check_loop,keybyte_0);
+				/* */
+				
+				fread(&keybyte, 1,3,key_fp);
+				
+				if (keybyte[0] == 0 && keybyte[1] == 0 && keybyte[2] == 0 ) {
+					/* We've read sequential zero's => invalid key (is this safe assumption?) */
+					printf("XXX Index: %ld Keybytes: %x %x %x \n",byte_check_loop,keybyte[0],keybyte[1],keybyte[2]);
 					result = 1;
 				} else {
 					// printf("Index: %ld Keybyte: %x \n",byte_check_loop,keybyte_0);
 				}
-				keybyte_1=keybyte_0;
 			}
 			safe_fclose(key_fp);
 		}	
